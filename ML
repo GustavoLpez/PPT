@@ -1,0 +1,86 @@
+
+if (!require(ggplot2)) install.packages("ggplot2", dependencies = TRUE)
+if (!require(dplyr)) install.packages("dplyr", dependencies = TRUE)
+library(ggplot2)
+library(dplyr)
+
+df <- read.csv("conjunto_datos_enasem.csv")
+
+# Vista general de los datos
+View(df)
+head(df)
+str(df)
+
+# variables relevantes
+encuesta <- data.frame(
+  edad = df$A2B_21,
+  sexo = df$SEX_21,
+  limitacion_activ = df$C21B_21,
+  es_hipertenso = df$C4_21,
+  es_diabetico = df$C6_21,
+  usa_insulina = df$C8_21,
+  tratamiento_diabetes = df$F9_21
+)
+
+# Limpieza de datos
+
+
+encuesta <- encuesta %>%
+  mutate(
+    es_hipertenso = ifelse(es_hipertenso %in% c(8, 9), NA, es_hipertenso),
+    es_diabetico = ifelse(es_diabetico %in% c(8, 9), NA, es_diabetico),
+    usa_insulina = ifelse(usa_insulina %in% c(8, 9), NA, usa_insulina)
+  )
+
+str(encuesta)
+summary(encuesta)
+
+# Visualizaciones
+
+# 1. Distribución de edades
+ggplot(data = encuesta, aes(x = edad)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+  labs(title = "Distribución de Edades",
+       x = "Edad",
+       y = "Frecuencia") +
+  theme_minimal()
+
+# 2. Distribución por sexo
+ggplot(data = encuesta, aes(x = factor(sexo, levels = c(1, 2), labels = c("Hombre", "Mujer")))) +
+  geom_bar(fill = "lightgreen") +
+  labs(title = "Distribución por Sexo",
+       x = "Sexo",
+       y = "Frecuencia") +
+  theme_minimal()
+
+# 3. Prevalencia de hipertensión
+ggplot(data = encuesta, aes(x = factor(es_hipertenso, levels = c(1, 2), labels = c("Sí", "No")))) +
+  geom_bar(fill = "orange") +
+  labs(title = "Prevalencia de Hipertensión",
+       x = "¿Es hipertenso?",
+       y = "Frecuencia") +
+  theme_minimal()
+
+# 4. Prevalencia de diabetes
+ggplot(data = encuesta, aes(x = factor(es_diabetico, levels = c(1, 2), labels = c("Sí", "No")))) +
+  geom_bar(fill = "red") +
+  labs(title = "Prevalencia de Diabetes",
+       x = "¿Es diabético?",
+       y = "Frecuencia") +
+  theme_minimal()
+
+# Proporción de hipertensos y diabéticos
+tabla_resumen <- encuesta %>%
+  summarise(
+    total = n(),
+    hipertensos = sum(es_hipertenso == 1, na.rm = TRUE),
+    diabeticos = sum(es_diabetico == 1, na.rm = TRUE),
+    usa_insulina = sum(usa_insulina == 1, na.rm = TRUE)
+  )
+
+print(tabla_resumen)
+
+# Tablas cruzadas: Hipertensión vs. Diabetes
+tabla_cruzada <- table(encuesta$es_hipertenso, encuesta$es_diabetico, useNA = "ifany")
+print(tabla_cruzada)
+
