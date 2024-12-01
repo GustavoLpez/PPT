@@ -1,0 +1,45 @@
+data <- read.csv("C:/Users/gusta/Downloads/DBPPT2.csv")
+
+library(ggplot2)
+
+# 1. Distribución de edades por sexo
+ggplot(data, aes(x = Edad, fill = Sexo)) +
+  geom_histogram(binwidth = 5, position = "dodge") +
+  theme_minimal() +
+  labs(title = "Distribución de edades por sexo", x = "Edad", y = "Frecuencia")
+
+# 2. Promedio de efectividad por tipo de tratamiento
+efectividad_promedio <- aggregate(Efectividad_Promedio ~ Tipo_Tratamiento, data = data, mean)
+print(efectividad_promedio)
+
+# 3. Costo promedio por nivel de actividad física
+costo_promedio <- aggregate(Costo_Promedio ~ Grado_Actividad_Fisica, data = data, mean)
+print(costo_promedio)
+
+# 4. Relación entre costo y efectividad
+ggplot(data, aes(x = Costo_Promedio, y = Efectividad_Promedio, color = Tipo_Tratamiento)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Relación entre costo y efectividad", x = "Costo Promedio", y = "Efectividad Promedio")
+
+# 5. Duración promedio del tratamiento por tipo de tratamiento
+tiempo_promedio <- aggregate(Tiempo_Tratamiento ~ Tipo_Tratamiento, data = data, mean)
+print(tiempo_promedio)
+
+# 6. Pacientes en cada nivel de actividad física
+actividad_fisica <- table(data$Grado_Actividad_Fisica)
+print(actividad_fisica)
+
+# 7. Edad promedio por nivel de actividad física
+edad_promedio <- aggregate(Edad ~ Grado_Actividad_Fisica, data = data, mean)
+print(edad_promedio)
+
+# 8. Comparación de sexo por tipo de tratamiento
+sexo_tratamiento <- table(data$Sexo, data$Tipo_Tratamiento)
+print(sexo_tratamiento)
+
+# 9. Impacto de la duración del tratamiento en la efectividad
+ggplot(data, aes(x = Tiempo_Tratamiento, y = Efectividad_Promedio)) +
+  geom_smooth(method = "lm", color = "blue") +
+  theme_minimal() +
+  labs(title = "Duración del tratamiento vs efectividad", x = "Duración del Tratamiento (meses)", y = "Efectividad Promedio")
